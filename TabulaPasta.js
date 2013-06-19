@@ -61,12 +61,12 @@ var TabulaPasta = {
         }
     },
     doubleSplit: function (string, split_one, split_two) {
-            "use strict";
-            var i, array = string.split(split_one);
-            for (i = 0; i < array.length; i += 1) {
-                array[i] = array[i].split(split_two);
-            }
-            return array;
+        "use strict";
+        var i, array = string.split(split_one);
+        for (i = 0; i < array.length; i += 1) {
+            array[i] = array[i].split(split_two);
+        }
+        return array;
     },
     convertTableToString: function (table) {
         "use strict";
@@ -99,5 +99,77 @@ var TabulaPasta = {
         "use strict";
         table_string = table_string.replace(/( +|)\t( +|)/g, "\t");
         return table_string;
+    },
+    parseTableArray: function (table_info) {
+        "use strict";
+        /*
+            This function parses an array of arrays (hence TableArray) and returns a table object.
+            The object includes certain things separated out, such as the header and the deck.
+        */
+        var i, parsed_table = {};
+        if (table_info) {
+            // Assumption: First line with length 1 is Headline
+            parsed_table.head = table_info[0].length === 1 ? table_info[0] : "";
+            // Assumption: Second line with length 1 is Deck
+            parsed_table.deck = table_info[1].length === 1 ? table_info[1] : "";
+            // Find first line that appears to have the same length as the following rows, assume headers
+            for (i = 2; i < table_info.length; i += 1) {
+                if (table_info[i].length === table_info[i + 1].length || table_info[i].length === table_info[i + 2].length) {
+                    break;
+                }
+            }
+            parsed_table.headers = table_info[i];
+            // Instantiate rows
+            parsed_table.rows = [];
+            // Instantiate footer
+            parsed_table.footer = [];
+            // Filter out note and source lines as well as footnotes, concatenate at end
+            // Also locate footer (will contain something like TOTAL or ALL and not be a subcategory)
+            for (i = i += 1; i < table_info.length; i += 1) {
+                if (table_info[i].length === 1 && table_info[i][0].match(/(^[a-z] |NOTE:|SOURCE:)/)) {
+                    parsed_table.note = parsed_table.note ? parsed_table.note += " " + table_info[i] : table_info[i];
+                } else {
+                    if (table_info[i][0].match("(TOTAL|ALL|All|OVERALL)") && !table_info[i][0].match(/\-\-/)) {
+                        parsed_table.footer = table_info[i];
+                    } else {
+                        if (table_info[i]) {
+                            parsed_table.rows.push(table_info[i]);
+                        }
+                    }
+                }
+            }
+        }
+        // If row grouping is set up, detect row grouping and proceed accordingly
+        if (this.Grouping) {
+            parsed_table = this.Grouping.detectGroupingType(parsed_table);
+        }
+        // Hoist signs such as dollars and percentages to the headline if not previously defined
+        parsed_table = this.columnDetectSignsStripAndAddToHeaderRowIfNotAlreadyDefined(parsed_table);
+        return parsed_table;
+    },
+	columnDetectSignsStripAndAddToHeaderRowIfNotAlreadyDefined: function (table) {
+    //Longest function name evar
+        "use strict";
+        var i, j, matched_character;
+        for (i = 0; i < table.headers.length; i += 1) {
+            if (!table.headers[i].match(/(\$|%|YEAR)/)) {
+                for (j = 0; j < table.rows.length; j += 1) {
+                    if (table.rows[j][i] && table.rows[j][i].match(/(\$|%)/)) {
+                        matched_character = table.rows[j][i].match(/(\$|%)/)[0];
+                        break;
+                    }
+                }
+                if ((table.rows[0][i] && table.rows[0][i].match(/(\$|%)/)) || (table.rows[1][i] && table.rows[1][i].match(/(\$|%)/))) {
+                    table.headers[i] = table.headers[i] += " (" + matched_character + ")";
+                    matched_character = undefined;
+                }
+            }
+        }
+        for (i = 0; i < table.rows.length; i += 1) {
+            for (j = 0; j < table.rows[i].length; j += 1) {
+                table.rows[i][j] = table.rows[i][j].replace(/(\$|%)/, "");
+            }
+        }
+        return table;
     }
 };
