@@ -59,5 +59,45 @@ var TabulaPasta = {
             this.removeEmptyArrays(table_array);
             return table_array; // Clean and shiny!
         }
+    },
+    doubleSplit: function (string, split_one, split_two) {
+            "use strict";
+            var i, array = string.split(split_one);
+            for (i = 0; i < array.length; i += 1) {
+                array[i] = array[i].split(split_two);
+            }
+            return array;
+    },
+    convertTableToString: function (table) {
+        "use strict";
+        var i;
+        if (table) {
+            for (i = 0; i < table.length; i += 1) {
+                table[i] = table[i].join("\t");
+            }
+            table = table.join("\n");
+            return table;
+        }
+    },
+    convertStringToTable: function (table_string) {
+        "use strict";
+        var info_array;
+        if (table_string) {
+            table_string = this.convertSingleLetterParensToSuperscript(table_string);
+            table_string = this.cleanAroundTabs(table_string);
+            table_string = table_string.replace(/['"]/g, "\\'");
+            info_array = this.doubleSplit(table_string, "\n", "\t");
+            return info_array;
+        }
+    },
+    convertSingleLetterParensToSuperscript: function (table_string) {
+        "use strict";
+        table_string = table_string.replace(/(| )\(([a-z])\)/g, "<sup>$2</sup>");
+        return table_string;
+    },
+    cleanAroundTabs: function (table_string) {
+        "use strict";
+        table_string = table_string.replace(/( +|)\t( +|)/g, "\t");
+        return table_string;
     }
 };
