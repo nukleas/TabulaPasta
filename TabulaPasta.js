@@ -171,5 +171,14 @@ var TabulaPasta = {
             }
         }
         return table;
+    },
+    createTableObjectFromArray: function (table_array) {
+        "use strict";
+        var parsed_array;
+        if (table_array) {
+            table_array = TabulaPasta.cleanupTools.cleanTableArray(table_array);
+            parsed_array = TabulaPasta.parseTableArray(table_array);
+            return parsed_array;
+        }
     }
 };
