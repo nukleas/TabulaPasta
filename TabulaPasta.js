@@ -100,6 +100,15 @@ var TabulaPasta = {
         table_string = table_string.replace(/( +|)\t( +|)/g, "\t");
         return table_string;
     },
+    formatRow: function (row, tag) {
+        "use strict";
+        var i;
+        for (i = 0; i < row.length; i += 1) {
+            if (row[i] !== "") {
+                row[i] = "<" + tag + ">" + row[i] + "</" + tag + ">";
+            }
+        }
+    },
     parseTableArray: function (table_info) {
         "use strict";
         /*
@@ -179,6 +188,128 @@ var TabulaPasta = {
             table_array = TabulaPasta.cleanupTools.cleanTableArray(table_array);
             parsed_array = TabulaPasta.parseTableArray(table_array);
             return parsed_array;
+        }
+    }
+};
+//Grouping Algorithms
+TabulaPasta.Grouping = {
+    groupRows: function (table) {
+        "use strict";
+        var i;
+        table.headers.unshift("");
+        table.footer.unshift("");
+        for (i = 0; i < table.rows.length; i += 1) {
+            table.rows[i].unshift("");
+        }
+        for (i = 0; i < table.rows.length; i += 1) {
+            if (!table.rows[i][1].match(/^--/)) {/*&& table.rows[i+1] && table.rows[i+1][2].match(/^--/)*/
+                table.rows[i][0] = table.rows[i][1];
+                TabulaPasta.formatRow(table.rows[i], "b");
+            } else {
+                if (table.rows[i][1].match(/^--/) && table.rows[i - 1][0] !== "") {
+                    table.rows[i][0] = table.rows[i - 1][0];
+                    table.rows[i][1] = table.rows[i][1].replace(/^--/g, "-  ");
+                }
+            }
+        }
+        table.row_grouping = this.groupingTypes["Standard Grouping"];
+        return table;
+    },
+    groupRowsTwoColumns: function (table) {
+        "use strict";
+        var i;
+        table.headers.unshift("", "");
+        table.footer.unshift("", "");
+        for (i = 0; i < table.rows.length; i += 1) {
+            table.rows[i].unshift("", "");
+        }
+        for (i = 0; i < table.rows.length; i += 1) {
+            if (!table.rows[i][2].match(/^--/)) { /*&& table.rows[i+1] && table.rows[i+1][2].match(/^--/)*/
+                table.rows[i][0] = table.rows[i][2];
+                TabulaPasta.formatRow(table.rows[i], "b");
+                table.rows[i][1] = "1"; // Sets the parent row
+            } else {
+                if (table.rows[i][2].match(/^--/) && table.rows[i - 1][0] !== "") {
+                    table.rows[i][0] = table.rows[i - 1][0];
+                    table.rows[i][1] = "0";
+                    table.rows[i][2] = table.rows[i][2].replace(/^--/g, "-  ");
+                }
+            }
+        }
+        table.row_grouping = this.groupingTypes["Two-Column Grouping"];
+        return table;
+    },
+    groupSubRows: function (table) {
+        "use strict";
+        var i;
+        table.headers.unshift("");
+        table.footer.unshift("");
+        for (i = 0; i < table.rows.length; i += 1) {
+            table.rows[i].unshift("");
+        }
+        for (i = 0; i < table.rows.length; i += 1) {
+            if (table.rows[i].length === 2 && table.rows[i][1].match(/^[A-Z0-9]/)) {
+                if (table.rows[i + 1].length > 3) {
+                    table.rows[i + 1][0] = table.rows[i][1];
+                    table.rows.splice(i, 1);
+                } else {
+                    table.rows.splice(i, 1);
+                    i = i - 1; // jump a step back, check again
+                }
+            } else {
+                if (table.rows[i - 1] && table.rows[i - 1][0] !== "") {
+                    table.rows[i][0] = table.rows[i - 1][0];
+                }
+            }
+        }
+        table.row_grouping = this.groupingTypes["Subrow Grouping"];
+        return table;
+    },
+
+    detectGroupingType: function (table) {
+	    "use strict";
+        var i, subgroups, chunking, chunk_counter = 0;
+        for (i = 0; i < table.rows.length; i += 1) {
+            if (table.rows[i][0].match("^--")) {
+                subgroups = true;
+                break;
+            }
+        }
+        for (i = 0; i < table.rows.length; i += 1) {
+            if (table.rows[i].length === 1) {
+                chunk_counter += 1;
+            }
+            if (chunk_counter > 2) {
+                chunking = true;
+                break;
+            }
+        }
+        switch (true) {
+        case subgroups && chunking:
+            return this.groupRowsTwoColumns(table);
+        case subgroups:
+            return this.groupRowsTwoColumns(table);
+        case chunking:
+            return this.groupSubRows(table);
+        default:
+            return table;
+        }
+	},
+    groupingTypes: {
+        "Two-Column Grouping": {
+            name: "Two-Column Grouping",
+            call_string: 'rowGrouping({iGroupingColumnIndex2: 1, sGroupingColumnSortDirection2:"desc"})',
+            script_location: 'js/jquery.dataTables.rowGrouping.custom.js'
+        },
+        "Subrow Grouping": {
+            name: "Subrow Grouping",
+            call_string: 'rowGrouping({sEmptyGroupLabel: ""})',
+            script_location: 'js/jquery.dataTables.rowGrouping.js'
+        },
+        'Standard Grouping': {
+            name: "Standard Grouping",
+            call_string: 'rowGrouping({sEmptyGroupLabel: ""})',
+            script_location: 'js/jquery.dataTables.rowGrouping.js'
         }
     }
 };
