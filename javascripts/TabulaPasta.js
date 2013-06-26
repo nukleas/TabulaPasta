@@ -14,8 +14,8 @@ var TabulaPasta = {
             cell = cell.replace(/^([^\x00-\xFF])+/g, '');
             // Clear nonstandard characters at the end of the string
             cell = cell.replace(/([^\x00-\xFF])+$/g, '');
-            // Allow underscores to be used to denote intentionally blank fields
-            cell = cell.replace(/^_/g, '\t');
+            // Allow single dashes to be used to denote intentionally blank fields
+            cell = cell.replace(/^-[^\-]/g, '\t');
             // Convert two or more leading spaces to dashes for row grouping
             cell = cell.replace(/^\s{2,}/g, '--');
             return cell;
@@ -140,8 +140,8 @@ var TabulaPasta = {
                 } else {
                     if (table_info[i][0].match("(TOTAL|ALL|All|OVERALL)") && !table_info[i][0].match(/\-\-/)) {
                         if (table_info[i].length === parsed_table.footer.length) {
-                           this.formatRow(parsed_table.footer, "b");
-                           parsed_table.rows.push(parsed_table.footer);
+                            this.formatRow(parsed_table.footer, "b");
+                            parsed_table.rows.push(parsed_table.footer);
                         }
                         parsed_table.footer = table_info[i];
                     } else {
@@ -193,6 +193,12 @@ var TabulaPasta = {
             parsed_array = TabulaPasta.parseTableArray(table_array);
             return parsed_array;
         }
+    },
+    createTableObjectFromString: function (string) {
+        "use strict";
+        var table = this.convertStringToTable(string);
+        table = this.createTableObjectFromArray(table);
+        return table;
     }
 };
 //Grouping Algorithms
