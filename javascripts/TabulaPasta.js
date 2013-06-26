@@ -4,19 +4,19 @@
 
 var TabulaPasta = {
     cleanupTools: {
-	/*
-		This object contains methods to clean a table array of funky characters
-		as well as prepare subgroups for later row grouping.
-	*/
+    /*
+        This object contains methods to clean a table array of funky characters
+        as well as prepare subgroups for later row grouping.
+    */
         cleanCell: function (cell) {
             "use strict";
-			// Clear nonstandard characters at the beginning of the string
+            // Clear nonstandard characters at the beginning of the string
             cell = cell.replace(/^([^\x00-\xFF])+/g, '');
-			// Clear nonstandard characters at the end of the string
+            // Clear nonstandard characters at the end of the string
             cell = cell.replace(/([^\x00-\xFF])+$/g, '');
-			// Allow underscores to be used to denote intentionally blank fields
-            cell = cell.replace(/^_/g, '\t');
-			// Convert two or more leading spaces to dashes for row grouping
+            // Allow single dashes to be used to denote intentionally blank fields
+            cell = cell.replace(/^-[^\-]/g, '\t');
+            // Convert two or more leading spaces to dashes for row grouping
             cell = cell.replace(/^\s{2,}/g, '--');
             return cell;
         },
@@ -24,13 +24,13 @@ var TabulaPasta = {
             "use strict";
             var i;
             for (i = 0; i < array.length; i += 1) {
-			    // If the cell contains something, clean cell
+                // If the cell contains something, clean cell
                 if (array[i]) {
                     array[i] = this.cleanCell(array[i]);
                 } else {
-				    // If it's bad, cut it out!
+                    // If it's bad, cut it out!
                     array.splice(i, 1);
-					// And step back a bit so you don't get ahead of yourself. Arraywise.
+                    // And step back a bit so you don't get ahead of yourself. Arraywise.
                     i += -1;
                 }
             }
@@ -41,7 +41,7 @@ var TabulaPasta = {
             var i;
             for (i = 0; i < arrays.length; i += 1) {
                 if (arrays[i].length === 0) {
-				    // Cut cut cut all the empty arrays
+                    // Cut cut cut all the empty arrays
                     arrays.splice(i, 1);
                     i += -1;
                 }
@@ -51,11 +51,11 @@ var TabulaPasta = {
         cleanTableArray: function (table_array) {
             "use strict";
             var i;
-			// Iterate through rows, cleaning and splicing as you go
+            // Iterate through rows, cleaning and splicing as you go
             for (i = 0; i < table_array.length; i += 1) {
                 this.cleanRow(table_array[i]);
             }
-			// And clean the empty arrays left behind
+            // And clean the empty arrays left behind
             this.removeEmptyArrays(table_array);
             return table_array; // Clean and shiny!
         }
@@ -139,6 +139,10 @@ var TabulaPasta = {
                     parsed_table.note = parsed_table.note ? parsed_table.note += " " + table_info[i] : table_info[i];
                 } else {
                     if (table_info[i][0].match("(TOTAL|ALL|All|OVERALL)") && !table_info[i][0].match(/\-\-/)) {
+                        if (table_info[i].length === parsed_table.footer.length) {
+                            this.formatRow(parsed_table.footer, "b");
+                            parsed_table.rows.push(parsed_table.footer);
+                        }
                         parsed_table.footer = table_info[i];
                     } else {
                         if (table_info[i]) {
@@ -156,7 +160,7 @@ var TabulaPasta = {
         parsed_table = this.columnDetectSignsStripAndAddToHeaderRowIfNotAlreadyDefined(parsed_table);
         return parsed_table;
     },
-	columnDetectSignsStripAndAddToHeaderRowIfNotAlreadyDefined: function (table) {
+    columnDetectSignsStripAndAddToHeaderRowIfNotAlreadyDefined: function (table) {
     //Longest function name evar
         "use strict";
         var i, j, matched_character;
@@ -189,6 +193,12 @@ var TabulaPasta = {
             parsed_array = TabulaPasta.parseTableArray(table_array);
             return parsed_array;
         }
+    },
+    createTableObjectFromString: function (string) {
+        "use strict";
+        var table = this.convertStringToTable(string);
+        table = this.createTableObjectFromArray(table);
+        return table;
     }
 };
 //Grouping Algorithms
@@ -267,7 +277,7 @@ TabulaPasta.Grouping = {
     },
 
     detectGroupingType: function (table) {
-	    "use strict";
+        "use strict";
         var i, subgroups, chunking, chunk_counter = 0;
         for (i = 0; i < table.rows.length; i += 1) {
             if (table.rows[i][0].match("^--")) {
@@ -294,7 +304,7 @@ TabulaPasta.Grouping = {
         default:
             return table;
         }
-	},
+    },
     groupingTypes: {
         "Two-Column Grouping": {
             name: "Two-Column Grouping",
