@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="TabulaPasta : A Javascript tool to parse nonstandard tables for use in DataTables" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>TabulaPasta</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/nukleas/TabulaPasta">View on GitHub</a>
+
+          <h1 id="project_title">TabulaPasta</h1>
+          <h2 id="project_tagline">A Javascript tool to parse nonstandard tables for use in DataTables</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/nukleas/TabulaPasta/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/nukleas/TabulaPasta/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="tabulapasta" class="anchor" href="#tabulapasta"><span class="octicon octicon-link"></span></a>TabulaPasta</h1>
+
+<p>A Javascript tool to parse nonstandard tables for use in <a href="http://www.datatables.net/">DataTables</a>.</p>
+
+<h1>
+<a name="about" class="anchor" href="#about"><span class="octicon octicon-link"></span></a>About</h1>
+
+<p>TabulaPasta was designed to rapidly prepare tables for the web using tables that were prepared for print.</p>
+
+<p>This is not necessarily an easy process. Tables can come in that are not completely clean or standard, so sometimes we need to do some thinking to clean up and prepare tables however we like.</p>
+
+<p>TabulaPasta tries to interpret your tables and then output an object which can be tossed into a Handlebars.js template or something similar to create a DataTable on the fly.</p>
+
+<h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>You can call TabulaPasta onto a string by using</p>
+
+<p>``</p>
+
+<h1>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<h3>
+<a name="detection-of-row-grouping" class="anchor" href="#detection-of-row-grouping"><span class="octicon octicon-link"></span></a>Detection Of Row Grouping</h3>
+
+<p>TabulaPasta can detect some forms of row grouping and prepare the columns accordingly. For example, if you have something like this:</p>
+
+<ul>
+<li><p>All Bob Businesses</p></li>
+<li><p>--Bob's Auto Repair</p></li>
+<li><p>--Bob's Home Repair</p></li>
+<li><p>--Bob's Relationship Repair</p></li>
+</ul><p>TabulaPasta will create an invisible right column that will group these elements together by the parent.</p>
+
+<p>In the case of, say, something chunked like:</p>
+
+<ul>
+<li>BOB'S AUTO PROFITS</li>
+<li>2013</li>
+<li>2012</li>
+<li>2011
+- ----</li>
+<li>BOB'S RELATIONSHIP PROFITS</li>
+<li>2013</li>
+<li>2012</li>
+<li>2011</li>
+</ul><p>TabulaPasta can detect those two and create two invisible columns so you can correctly sort within chunks without a problem.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">TabulaPasta maintained by <a href="https://github.com/nukleas">nukleas</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
