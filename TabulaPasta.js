@@ -199,7 +199,25 @@ var TabulaPasta = {
         var table = this.convertStringToTable(string);
         table = this.createTableObjectFromArray(table);
         return table;
-    }
+    },
+	getTableFromJSON: function (JSON_path) {
+	    "use strict";
+		if ($ && $.getJSON) {
+		    $.getJSON(JSON_path, function (data) {
+			    TabulaPasta.loadedJSON = data;
+			});
+		    return TabulaPasta.loadedJSON;
+		}
+	},
+	loadHandlebarsTemplate: function (template_url, template_name) {
+		"use strict";
+		handleBarsTemplates = {};
+		$.get(template_url, function (data) {
+			var template = Handlebars.compile(data);
+			handleBarsTemplates[template_name] = template;
+	    });
+		return handleBarsTemplates[template_name];
+	}
 };
 //Grouping Algorithms
 TabulaPasta.Grouping = {
