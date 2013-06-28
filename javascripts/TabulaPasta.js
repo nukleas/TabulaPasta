@@ -15,7 +15,7 @@ var TabulaPasta = {
             // Clear nonstandard characters at the end of the string
             cell = cell.replace(/([^\x00-\xFF])+$/g, '');
             // Allow single dashes to be used to denote intentionally blank fields
-            cell = cell.replace(/^-[^\-]/g, '\t');
+            cell = cell.replace(/^_/g, '\t');
             // Convert two or more leading spaces to dashes for row grouping
             cell = cell.replace(/^\s{2,}/g, '--');
             return cell;
