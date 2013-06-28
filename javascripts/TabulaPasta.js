@@ -138,7 +138,7 @@ var TabulaPasta = {
                 if (table_info[i].length === 1 && table_info[i][0].match(/(^[a-z] |NOTE:|SOURCE:)/)) {
                     parsed_table.note = parsed_table.note ? parsed_table.note += " " + table_info[i] : table_info[i];
                 } else {
-                    if (table_info[i][0].match("(TOTAL|ALL|All|OVERALL)") && !table_info[i][0].match(/\-\-/)) {
+                    if (table_info[i][0].match("(^TOTAL|^ALL|^All|^OVERALL)") && !table_info[i][0].match(/\-\-/)) {
                         if (table_info[i].length === parsed_table.footer.length) {
                             this.formatRow(parsed_table.footer, "b");
                             parsed_table.rows.push(parsed_table.footer);
@@ -199,7 +199,25 @@ var TabulaPasta = {
         var table = this.convertStringToTable(string);
         table = this.createTableObjectFromArray(table);
         return table;
-    }
+    },
+	getTableFromJSON: function (JSON_path) {
+	    "use strict";
+		if ($ && $.getJSON) {
+		    $.getJSON(JSON_path, function (data) {
+			    TabulaPasta.loadedJSON = data;
+			});
+		    return TabulaPasta.loadedJSON;
+		}
+	},
+	loadHandlebarsTemplate: function (template_url, template_name) {
+		"use strict";
+		handleBarsTemplates = {};
+		$.get(template_url, function (data) {
+			var template = Handlebars.compile(data);
+			handleBarsTemplates[template_name] = template;
+	    });
+		return handleBarsTemplates[template_name];
+	}
 };
 //Grouping Algorithms
 TabulaPasta.Grouping = {
