@@ -138,7 +138,7 @@ var TabulaPasta = {
                 if (table_info[i].length === 1 && table_info[i][0].match(/(^[a-z] |NOTE:|SOURCE:)/)) {
                     parsed_table.note = parsed_table.note ? parsed_table.note += " " + table_info[i] : table_info[i];
                 } else {
-                    if (table_info[i][0].match("(TOTAL|ALL|All|OVERALL)") && !table_info[i][0].match(/\-\-/)) {
+                    if (table_info[i][0].match("(^TOTAL|^ALL|^All|^OVERALL)") && !table_info[i][0].match(/\-\-/)) {
                         if (table_info[i].length === parsed_table.footer.length) {
                             this.formatRow(parsed_table.footer, "b");
                             parsed_table.rows.push(parsed_table.footer);
